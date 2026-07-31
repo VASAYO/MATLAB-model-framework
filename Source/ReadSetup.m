@@ -40,7 +40,7 @@ function Params = ReadSetup(FNames, LogLanguage, Source)
         % Попытаемся найти сетап-листы
             if isempty(Source)
                 Listing = dir("Setup*.m");
-                bufListing = dir("Setups\Setup*.m");
+                bufListing = dir(fullfile('Setups', 'Setup*.m') );
                 Listing = [Listing; bufListing];
         
             elseif exist(Source, 'dir')
@@ -55,7 +55,7 @@ function Params = ReadSetup(FNames, LogLanguage, Source)
 
         % Пути к сетап-листам
             for k = 1:length(Listing)
-                FileNames{end+1} = [Listing(k).folder '\' Listing(k).name]; %#ok<AGROW>
+                FileNames{end+1} = fullfile(Listing(k).folder, Listing(k).name); %#ok<AGROW>
             end
 
     % Обработка каждого найденного файла

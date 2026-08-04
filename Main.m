@@ -199,25 +199,6 @@ function [Objs, SimData] = MainChain(InObjs, Params)
 
     % Поля структуры параметров
         pCommon = Params.Common;
-
-    %% Прорисовка результатов
-    if ~pCommon.isDraw, return; end
-
-    % Список фигур и их имён
-        f = cell(0);
-        fNames = cell(0);
-
-    if pCommon.isDraw > 1
-        for k = 1 : length(f)
-            saveas(f{k}, fullfile(pCommon.SaveDirName, fNames{k}), ...
-                'fig');
-        end
-    end
-    if pCommon.isDraw > 2
-        for k = 1 : length(f)
-            close(f{k});
-        end
-    end
 end
 
 function ProcessPaths(Paths, mode)

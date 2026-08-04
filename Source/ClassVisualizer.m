@@ -2,8 +2,6 @@ classdef ClassVisualizer < handle
 
 properties (SetAccess = private) % Свойства
 
-    % Режим прорисовки результатов
-        isDraw double     = 1;
     % Каталог для сохранения результатов
         SaveDirName  char = 'Results';
     % Имя файла для сохранения результатов, используется как префикс для

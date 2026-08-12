@@ -2,16 +2,22 @@ function Main(varargin)
 % Главная исполняемая функция модели
 % 
 % Name-value параметры:
-%   "Path2SetupList" - (опционально) путь к папке, .mat или .m-файлу, 
-%                      содержащему наборы параметров для моделирования. В
-%                      отсутствии данного параметра модель выполняет
-%                      моделирование для всех найденных наборов параметров 
-%                      в папке Setups или корневой папке модели;
+%   "Path2SetupList" - 
+%       путь к папке, .mat или .m-файлу, содержащему наборы параметров для 
+%       моделирования. В отсутствии данного параметра модель выполняет 
+%       моделирование для всех найденных наборов параметров в папке Setups 
+%       или корневой папке модели.
+%       '' (default) | character vector | string scalar;
 % 
-%   "isPause2SelectParams" - флаг необходимости остановки модели перед
-%                            началом работы, чтобы выбрать в консоли наборы
-%                            параметров, для которых необходимо выполнить 
-%                            моделирование: 'false' | 'true'.
+%   "isPause2SelectParams" - 
+%       флаг необходимости остановки модели перед началом работы, чтобы 
+%       выбрать в консоли наборы параметров, для которых необходимо 
+%       выполнить моделирование.
+%       'false' (default) | 'true' | real or logical scalar;
+% 
+%   "isSaveLog" - 
+%       флаг необходимости записи лога в файл.
+%       'true' (default) | 'false' | real or logical scalar;
 
     % Укажите список путей, которые необходимо включить для выполнения
     % моделирования
@@ -21,8 +27,9 @@ function Main(varargin)
             };
 
     % Парсинг name-value параметров
-        Path2SetupList = '';
+        Path2SetupList       = '';
         isPause2SelectParams = false;
+        isSaveLog            = true;
         k = 1;
         while k <= length(varargin)
 
@@ -33,12 +40,37 @@ function Main(varargin)
             end
 
             if strcmpi(varargin{k}, 'isPause2SelectParams')
-                if strcmpi(varargin{k+1}, 'true')
-                    isPause2SelectParams = true;
+                isPause2SelectParams = varargin{k+1};
+                if ischar(isPause2SelectParams) || isstring(isPause2SelectParams)
+                    isPause2SelectParams = str2num(isPause2SelectParams); %#ok<ST2NM>
                 end
+
+                mustBeNumericOrLogical(isPause2SelectParams);
+                mustBeReal(isPause2SelectParams);
+                mustBeNonNan(isPause2SelectParams);
+                mustBeScalarOrEmpty(isPause2SelectParams);
+                mustBeNonempty(isPause2SelectParams);
+
                 k = k + 2;
                 continue;
             end
+
+            if strcmpi(varargin{k}, 'isSaveLog')
+                isSaveLog = varargin{k+1};
+                if ischar(isSaveLog) || isstring(isSaveLog)
+                    isSaveLog = str2num(isSaveLog); %#ok<ST2NM>
+                end
+
+                mustBeNumericOrLogical(isSaveLog);
+                mustBeReal(isSaveLog);
+                mustBeNonNan(isSaveLog);
+                mustBeScalarOrEmpty(isSaveLog);
+                mustBeNonempty(isSaveLog);
+
+                k = k + 2;
+                continue;
+            end
+
             k = k + 1;
         end        
 
@@ -49,8 +81,10 @@ function Main(varargin)
             Paths = HandleContainer(Paths);
         % Флаг того, ведётся ли в данный момент моделирование
             isModeling = HandleContainer(false);
+        % Флаг записи лога в файл
+            isSaveLog = HandleContainer(isSaveLog);
         % Объект, вызывающий специальную функцию при завершении работы
-            ShutdownObj = onCleanup(@() ShutdownFun(Paths, isModeling));
+            ShutdownObj = onCleanup(@() ShutdownFun(Paths, isModeling, isSaveLog));
 
     % Получим список полей структуры параметров
         [~, FNames] = SetParams([], 0);
@@ -133,7 +167,9 @@ function Main(varargin)
             if exist(logFileName, "file")
                 delete(logFileName);
             end
-            diary(logFileName);
+            if isSaveLog.Value
+                diary(logFileName);
+            end
 
         % Лог
             fprintf('%s Моделирование набора параметров ''%s'' (%d из %d) ...\n', ...
@@ -149,7 +185,7 @@ function Main(varargin)
             Objs = PrepareObjects(Params);
 
             % Выполнение моделирования
-            [Objs, SimData] = MainChain(Objs, Params);
+            [Objs, ~] = MainChain(Objs, Params);
 
             % Удаление объектов
             DeleteObjects(Objs);
@@ -164,7 +200,9 @@ function Main(varargin)
                 fprintf('%s     Не завершено:\n', datetime);
                 disp(ME.getReport);
             % Выключим логгирование
-                diary off;
+                if isSaveLog.Value
+                    diary off;
+                end
 
             fprintf('%% ----------------------------------------- %%\n\n');
             continue;
@@ -175,7 +213,9 @@ function Main(varargin)
         % Лог
             fprintf('%s     Завершено.\n', datetime);
         % Выключим логгирование
-            diary off;
+            if isSaveLog.Value
+                diary off;
+            end
 
         fprintf('%% ----------------------------------------- %%\n\n');
     end
@@ -203,7 +243,7 @@ function ProcessPaths(Paths, mode)
     end
 end
 
-function ShutdownFun(Paths, isModeling)
+function ShutdownFun(Paths, isModeling, isSaveLog)
 % Функция вызывается при завершении работы главной функции
 
     % Если работа была прервана во время моделирования, сделаем запись в лог
@@ -212,7 +252,9 @@ function ShutdownFun(Paths, isModeling)
     end
 
     % Выключение логгирования
-    diary off;
+    if isSaveLog.Value
+        diary off;
+    end
 
     % Удаление путей
     ProcessPaths(Paths.Value, 'rm');

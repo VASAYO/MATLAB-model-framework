@@ -4,8 +4,8 @@
     "inputs":
     [
       {"name":"Path2SetupList",       "kind":"namevalue", "type":["folder", "file=*.m, .mat"],  "purpose":"Path to folder, .m or .mat file"},
-      {"name":"isPause2SelectParams", "kind":"namevalue", "type":["choices={'false', 'true'}"], "purpose":"Flag to pause model before running"},
-      {"name":"isSaveLog",            "kind":"namevalue", "type":["choices={'false', 'true'}"], "purpose":"Flag to save log into a file"}
+      {"name":"isPause2SelectParams", "kind":"namevalue", "type":["logical","scalar"],          "purpose":"Flag to pause model before running"},
+      {"name":"isSaveLog",            "kind":"namevalue", "type":["logical","scalar"],          "purpose":"Flag to save log into a file"}
     ]
   }
 }

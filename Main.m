@@ -13,11 +13,11 @@ function Main(varargin)
 %       флаг необходимости остановки модели перед началом работы, чтобы 
 %       выбрать в консоли наборы параметров, для которых необходимо 
 %       выполнить моделирование.
-%       'false' (default) | 'true' | real or logical scalar;
+%       false (default) | real or logical scalar
 % 
 %   "isSaveLog" - 
 %       флаг необходимости записи лога в файл.
-%       'true' (default) | 'false' | real or logical scalar;
+%       true (default) | real or logical scalar;
 
     % Укажите список путей, которые необходимо включить для выполнения
     % моделирования
@@ -41,9 +41,6 @@ function Main(varargin)
 
             if strcmpi(varargin{k}, 'isPause2SelectParams')
                 isPause2SelectParams = varargin{k+1};
-                if ischar(isPause2SelectParams) || isstring(isPause2SelectParams)
-                    isPause2SelectParams = str2num(isPause2SelectParams); %#ok<ST2NM>
-                end
 
                 mustBeNumericOrLogical(isPause2SelectParams);
                 mustBeReal(isPause2SelectParams);
@@ -57,9 +54,6 @@ function Main(varargin)
 
             if strcmpi(varargin{k}, 'isSaveLog')
                 isSaveLog = varargin{k+1};
-                if ischar(isSaveLog) || isstring(isSaveLog)
-                    isSaveLog = str2num(isSaveLog); %#ok<ST2NM>
-                end
 
                 mustBeNumericOrLogical(isSaveLog);
                 mustBeReal(isSaveLog);

@@ -7,6 +7,7 @@ function [Params, FNames] = SetParams(inParams, ParamsNumber)
 
     % Имена полей структуры параметров
     FNames = { ...
+        'Model', ...
         'Common' ...
         };
 
@@ -17,8 +18,18 @@ function [Params, FNames] = SetParams(inParams, ParamsNumber)
         % Если такого поля структуры нет, создадим его
         if ~isfield(Params, Field), Params.(Field) = []; end
 
-        % Вызов функции заполнения данного поля структуры
+        % Указатель на функцию заполнения поля структуры
         Fun = str2func(['SetParams' Field]);
+
+        % Проверим, сможет ли указатель вызвать подфункцию данного файла
+        FunInfo = functions(Fun);
+        SetParamsFullname = mfilename("fullpath");
+        [SubFunPath, SubFunName] = fileparts(FunInfo.file);
+        if ~strcmp(SetParamsFullname, fullfile(SubFunPath, SubFunName) )
+            continue;
+        end
+
+        % Вызов функции заполнения данного поля структуры
         Params.(Field) = Fun(Params.(Field), ParamsNumber);
     end
 end

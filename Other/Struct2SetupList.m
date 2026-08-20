@@ -164,6 +164,17 @@ function str = Matrix2StrConversionHelper(A)
     % Вычислим размер матрицы А
         DimSizes = size(A);
 
+    % Если A - пустое значение
+        if isequal(DimSizes, [0 0])
+            str = '[]';
+            return;
+
+        elseif any(DimSizes == 0)
+            str = ['zeros([' num2str(DimSizes) ']'];
+            str = DeleteDoubleSpaces(str);
+            return;
+        end
+
     % Если A - матрица с тремя и более измерениями, сформируем строку при
     % помощи reshape
     if length(DimSizes) > 2

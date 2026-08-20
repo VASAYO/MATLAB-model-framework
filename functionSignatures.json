@@ -3,9 +3,9 @@
   {
     "inputs":
     [
-      {"name":"Path2SetupList",       "kind":"namevalue", "type":["folder", "file=*.m, .mat"],  "purpose":"Path to folder, .m or .mat file"},
-      {"name":"isPause2SelectParams", "kind":"namevalue", "type":["logical","scalar"],          "purpose":"Flag to pause model before running"},
-      {"name":"isSaveLog",            "kind":"namevalue", "type":["logical","scalar"],          "purpose":"Flag to save log into a file"}
+      {"name":"Path2SetupList",       "kind":"namevalue", "type":[["folder"], ["file=*.m,*.mat"]],          "purpose":"Path to folder, .m or .mat file"},
+      {"name":"isPause2SelectParams", "kind":"namevalue", "type":[["logical","scalar"], ["real","scalar"]], "purpose":"Flag to pause model before running"},
+      {"name":"isDiaryEnable",        "kind":"namevalue", "type":[["logical","scalar"], ["real","scalar"]], "purpose":"Flag to write log to a file"}
     ]
   }
 }

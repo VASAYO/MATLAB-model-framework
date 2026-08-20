@@ -15,9 +15,9 @@ function Main(varargin)
 %       выполнить моделирование.
 %       false (default) | real or logical scalar
 % 
-%   "isSaveLog" - 
-%       флаг необходимости записи лога в файл.
-%       true (default) | real or logical scalar;
+%   "isDiaryEnable" - 
+%       флаг необходимости записи содержимого командной строки в файл лога.
+%       true (default) | real or logical scalar
 
     % Укажите список путей, которые необходимо включить для выполнения
     % моделирования
@@ -29,7 +29,7 @@ function Main(varargin)
     % Парсинг name-value параметров
         Path2SetupList       = '';
         isPause2SelectParams = false;
-        isSaveLog            = true;
+        isDiaryEnable        = true;
         k = 1;
         while k <= length(varargin)
 
@@ -52,14 +52,14 @@ function Main(varargin)
                 continue;
             end
 
-            if strcmpi(varargin{k}, 'isSaveLog')
-                isSaveLog = varargin{k+1};
+            if strcmpi(varargin{k}, 'isDiaryEnable')
+                isDiaryEnable = varargin{k+1};
 
-                mustBeNumericOrLogical(isSaveLog);
-                mustBeReal(isSaveLog);
-                mustBeNonNan(isSaveLog);
-                mustBeScalarOrEmpty(isSaveLog);
-                mustBeNonempty(isSaveLog);
+                mustBeNumericOrLogical(isDiaryEnable);
+                mustBeReal(isDiaryEnable);
+                mustBeNonNan(isDiaryEnable);
+                mustBeScalarOrEmpty(isDiaryEnable);
+                mustBeNonempty(isDiaryEnable);
 
                 k = k + 2;
                 continue;
@@ -76,9 +76,9 @@ function Main(varargin)
         % Флаг того, ведётся ли в данный момент моделирование
             isModeling = HandleContainer(false);
         % Флаг записи лога в файл
-            isSaveLog = HandleContainer(isSaveLog);
+            isDiaryEnable = HandleContainer(isDiaryEnable);
         % Объект, вызывающий специальную функцию при завершении работы
-            ShutdownObj = onCleanup(@() ShutdownFun(Paths, isModeling, isSaveLog));
+            ShutdownObj = onCleanup(@() ShutdownFun(Paths, isModeling, isDiaryEnable));
 
     % Получим список полей структуры параметров
         [~, FNames] = SetParams([], 0);
@@ -161,7 +161,7 @@ function Main(varargin)
             if exist(logFileName, "file")
                 delete(logFileName);
             end
-            if isSaveLog.Value
+            if isDiaryEnable.Value
                 diary(logFileName);
             end
 
@@ -194,7 +194,7 @@ function Main(varargin)
                 fprintf('%s     Не завершено:\n', datetime);
                 disp(ME.getReport);
             % Выключим логгирование
-                if isSaveLog.Value
+                if isDiaryEnable.Value
                     diary off;
                 end
 
@@ -207,7 +207,7 @@ function Main(varargin)
         % Лог
             fprintf('%s     Завершено.\n', datetime);
         % Выключим логгирование
-            if isSaveLog.Value
+            if isDiaryEnable.Value
                 diary off;
             end
 
@@ -226,10 +226,10 @@ function ProcessPaths(Paths, mode)
 
         % Добавление или удаление пути
         if isequal(mode, 'add')
-            addpath(fullfile(mfolder, Paths{k}) );
+            addpath(fullfile(mfolder, Paths{k}), '-begin');
 
         elseif isequal(mode, 'rm')
-            rmpath(fullfile(mfolder, Paths{k}) );
+            rmpath( fullfile(mfolder, Paths{k}), '-begin');
 
         else
             error('Недопустимое значение параметра ''mode''.');
@@ -237,7 +237,7 @@ function ProcessPaths(Paths, mode)
     end
 end
 
-function ShutdownFun(Paths, isModeling, isSaveLog)
+function ShutdownFun(Paths, isModeling, isDiaryEnable)
 % Функция вызывается при завершении работы главной функции
 
     % Если работа была прервана во время моделирования, сделаем запись в лог
@@ -246,7 +246,7 @@ function ShutdownFun(Paths, isModeling, isSaveLog)
     end
 
     % Выключение логгирования
-    if isSaveLog.Value
+    if isDiaryEnable.Value
         diary off;
     end
 

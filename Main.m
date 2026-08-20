@@ -226,10 +226,10 @@ function ProcessPaths(Paths, mode)
 
         % Добавление или удаление пути
         if isequal(mode, 'add')
-            addpath(fullfile(mfolder, Paths{k}), '-begin');
+            addpath(fullfile(mfolder, Paths{k}) );
 
         elseif isequal(mode, 'rm')
-            rmpath( fullfile(mfolder, Paths{k}), '-begin');
+            rmpath( fullfile(mfolder, Paths{k}) );
 
         else
             error('Недопустимое значение параметра ''mode''.');

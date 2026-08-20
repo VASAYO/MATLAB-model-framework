@@ -18,6 +18,10 @@ function Main(varargin)
 %   "isDiaryEnable" - 
 %       флаг необходимости записи содержимого командной строки в файл лога.
 %       true (default) | real or logical scalar
+% 
+%   "isClearCW" - 
+%       флаг необходимости очистки командного окна при вызове функции.
+%       true (default) | real or logical scalar
 
     % Укажите список путей, которые необходимо включить для выполнения
     % моделирования
@@ -30,6 +34,8 @@ function Main(varargin)
         Path2SetupList       = '';
         isPause2SelectParams = false;
         isDiaryEnable        = true;
+        isClearCW            = true;
+
         k = 1;
         while k <= length(varargin)
 
@@ -65,11 +71,26 @@ function Main(varargin)
                 continue;
             end
 
+            if strcmpi(varargin{k}, 'isClearCW')
+                isClearCW = varargin{k+1};
+
+                mustBeNumericOrLogical(isClearCW);
+                mustBeReal(isClearCW);
+                mustBeNonNan(isClearCW);
+                mustBeScalarOrEmpty(isClearCW);
+                mustBeNonempty(isClearCW);
+
+                k = k + 2;
+                continue;
+            end
+
             k = k + 1;
         end        
 
     % Подготовка к работе
-        clc;
+        if isClearCW, clc; end
+        % Лог
+            fprintf('\n%s %s: начало работы.\n', datetime, mfilename);
         % Добавление путей и их удаление при завершении работы функции
             ProcessPaths(Paths, 'add');
             Paths = HandleContainer(Paths);
@@ -166,7 +187,7 @@ function Main(varargin)
             end
 
         % Лог
-            fprintf('%s Моделирование набора параметров ''%s'' (%d из %d) ...\n', ...
+            fprintf('%s     Моделирование набора параметров ''%s'' (%d из %d) ...\n', ...
                 datetime, Params.Common.SaveFileName, k, numel(ParamsSets) );
 
         % Флаг моделирования
@@ -198,7 +219,7 @@ function Main(varargin)
                     diary off;
                 end
 
-            fprintf('%% ----------------------------------------- %%\n\n');
+            fprintf('\n');
             continue;
         end
     
@@ -211,7 +232,7 @@ function Main(varargin)
                 diary off;
             end
 
-        fprintf('%% ----------------------------------------- %%\n\n');
+        fprintf('\n');
     end
 end % Main
 
@@ -249,6 +270,9 @@ function ShutdownFun(Paths, isModeling, isDiaryEnable)
     if isDiaryEnable.Value
         diary off;
     end
+
+    % Лог о завершении работы
+    fprintf('%s %s: завершено.\n', datetime, mfilename);
 
     % Удаление путей
     ProcessPaths(Paths.Value, 'rm');
